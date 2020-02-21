@@ -46,10 +46,8 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
       endif
       let b:completion_tried = 1
     endif
-
 		let b:tab_complete_pos = pos
 		return exp
-
   elseif match(substr, file_pattern) != -1
     return dir ? "\<C-x>\<C-f>" : "\<C-x>\<C-f>" . return_exp
   endif
