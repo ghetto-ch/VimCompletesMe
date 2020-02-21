@@ -28,6 +28,10 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
   let file_pattern = (has('win32') || has('win64')) ? '\\\|\/' : '\/'
   let return_exp = &completeopt =~ 'noselect' ? "\<C-p>" : "\<C-p>\<C-p>"
 
+	" Action for automatic fallback
+	let b:shift_tab = a:shift_tab
+	let fallback_action = "\<C-r>=VimCompletesMe#vim_completes_me(b:shift_tab)\<CR>"
+
   if !empty(&omnifunc) && match(substr, omni_pattern) != -1
     " Check position so that we can fallback if at the same pos.
     if get(b:, 'tab_complete_pos', []) == pos && b:completion_tried
@@ -36,14 +40,16 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
     else
       echo "Looking for members..."
       if !empty(&completefunc) && map ==? "user"
-        let exp = dir ? "\<C-x>\<C-u>" : "\<C-x>\<C-u>" . return_exp
+        let exp = dir ? "\<C-x>\<C-u>" . fallback_action : "\<C-x>\<C-u>" . return_exp . fallback_action
       else
-        let exp = dir ? "\<C-x>\<C-o>" : "\<C-x>\<C-o>" . return_exp
+        let exp = dir ? "\<C-x>\<C-o>" . fallback_action : "\<C-x>\<C-o>" . return_exp . fallback_action
       endif
       let b:completion_tried = 1
     endif
-    let b:tab_complete_pos = pos
-    return exp
+
+		let b:tab_complete_pos = pos
+		return exp
+
   elseif match(substr, file_pattern) != -1
     return dir ? "\<C-x>\<C-f>" : "\<C-x>\<C-f>" . return_exp
   endif
@@ -57,12 +63,12 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
   " Fallback to user's vcm_tab_complete or if not set, to keyword completion
   let b:completion_tried = 1
   if map ==? "user"
-    return dir ? "\<C-x>\<C-u>" : "\<C-x>\<C-u>" . return_exp
+    return dir ? "\<C-x>\<C-u>" . fallback_action  : "\<C-x>\<C-u>" . return_exp . fallback_action
   elseif map ==? "omni"
     echo "Looking for members..."
-    return dir ? "\<C-x>\<C-o>" : "\<C-x>\<C-o>" . return_exp
+    return dir ? "\<C-x>\<C-o>" . fallback_action : "\<C-x>\<C-o>" . return_exp . fallback_action
   elseif map ==? "vim"
-    return dir ? "\<C-x>\<C-v>" : "\<C-x>\<C-v>" . return_exp
+    return dir ? "\<C-x>\<C-v>" . fallback_action  : "\<C-x>\<C-v>" . return_exp . fallback_action
   else
     return dirs[!dir]
   endif
