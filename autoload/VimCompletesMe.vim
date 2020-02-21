@@ -30,7 +30,7 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
 
   " Action for automatic fallback
   let b:shift_tab = a:shift_tab
-  let fallback_action = "\<C-r>=VimCompletesMe#vim_completes_me(b:shift_tab)\<CR>"
+  let fallback_action = "\<C-r>=pumvisible() ? '' : VimCompletesMe#vim_completes_me(b:shift_tab)\<CR>"
 
   if !empty(&omnifunc) && match(substr, omni_pattern) != -1
     " Check position so that we can fallback if at the same pos.
