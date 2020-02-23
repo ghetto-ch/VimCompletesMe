@@ -34,8 +34,8 @@ endif
 " Autocmds {{{1
 augroup VCM
   autocmd!
-  autocmd InsertEnter * let b:completion_tried = 0
+  autocmd InsertEnter * let b:completion_tried = 0 | let b:fallback_tried = 0
   if v:version > 703 || v:version == 703 && has('patch598')
-    autocmd CompleteDone * let b:completion_tried = 0
+    autocmd CompleteDone * let b:completion_tried = 0 | let b:fallback_tried = 1
   endif
 augroup END

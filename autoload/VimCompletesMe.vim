@@ -28,14 +28,15 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
   let file_pattern = (has('win32') || has('win64')) ? '\\\|\/' : '\/'
   let return_exp = &completeopt =~ 'noselect' ? "\<C-p>" : "\<C-p>\<C-p>"
 
-  " Action for automatic fallback
+	" Action for automatic fallback
   let b:shift_tab = a:shift_tab
-  let fallback_action = "\<C-r>=pumvisible() ? '' : VimCompletesMe#vim_completes_me(b:shift_tab)\<CR>"
+  let fallback_action = "\<C-r>=pumvisible() || b:fallback_tried ? '' : VimCompletesMe#vim_completes_me(b:shift_tab)\<CR>"
 
   if !empty(&omnifunc) && match(substr, omni_pattern) != -1
     " Check position so that we can fallback if at the same pos.
     if get(b:, 'tab_complete_pos', []) == pos && b:completion_tried
       echo "Falling back to keyword"
+			let b:fallback_tried = 1
       let exp = "\<C-x>" . dirs[!dir]
     else
       echo "Looking for members..."
@@ -55,6 +56,7 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
   " If we already tried special completion, fallback to keyword completion
   if exists('b:completion_tried') && b:completion_tried
     let b:completion_tried = 0
+		let b:fallback_tried = 1
     return "\<C-e>" . dirs[!dir]
   endif
 
