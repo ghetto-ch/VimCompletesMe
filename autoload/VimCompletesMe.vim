@@ -28,9 +28,13 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
   let file_pattern = (has('win32') || has('win64')) ? '\\\|\/' : '\/'
   let return_exp = &completeopt =~ 'noselect' ? "\<C-p>" : "\<C-p>\<C-p>"
 
-	" Action for automatic fallback
-  let b:shift_tab = a:shift_tab
-  let fallback_action = "\<C-r>=pumvisible() || b:fallback_tried ? '' : VimCompletesMe#vim_completes_me(b:shift_tab)\<CR>"
+	" Automatic fallback action
+	let b:shift_tab = a:shift_tab
+	if exists('b:fallback_tried') && b:fallback_tried
+		let fallback_action = ""
+	else
+		let fallback_action = "\<C-r>=VimCompletesMe#check_completion()\<CR>"
+	endif
 
   if !empty(&omnifunc) && match(substr, omni_pattern) != -1
     " Check position so that we can fallback if at the same pos.
@@ -72,4 +76,13 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
   else
     return dirs[!dir]
   endif
+endfunction
+
+function! VimCompletesMe#check_completion()
+	if !pumvisible()
+		let b:fallback_tried = 1
+		let exp = VimCompletesMe#vim_completes_me(b:shift_tab)
+		let b:fallback_tried = 0
+		return exp
+	endif
 endfunction
