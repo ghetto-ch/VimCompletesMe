@@ -24,8 +24,8 @@ if !exists('g:vcm_omni_pattern')
 endif
 
 " Maps: {{{1
-inoremap <expr> <plug>vim_completes_me_forward  VimCompletesMe#vim_completes_me(0)
-inoremap <expr> <plug>vim_completes_me_backward VimCompletesMe#vim_completes_me(1)
+inoremap <expr> <plug>vim_completes_me_forward  VimCompletesMe#vim_completes_me(0, 0)
+inoremap <expr> <plug>vim_completes_me_backward VimCompletesMe#vim_completes_me(1, 0)
 if g:vcm_default_maps
   imap <Tab>   <plug>vim_completes_me_forward
   imap <S-Tab> <plug>vim_completes_me_backward

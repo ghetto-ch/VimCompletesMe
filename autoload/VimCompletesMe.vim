@@ -3,7 +3,7 @@
 " Version:             1.5.1
 " Website:             <http://github.com/ajh17/VimCompletesMe>
 
-function! VimCompletesMe#vim_completes_me(shift_tab)
+function! VimCompletesMe#vim_completes_me(shift_tab, fallback_tried)
   let dirs = ["\<c-n>", "\<c-p>"]
   let dir = g:vcm_direction =~? '[nf]'
   let map = exists('b:vcm_tab_complete') ? b:vcm_tab_complete : ''
@@ -30,17 +30,17 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
 
 	" Automatic fallback action
 	let b:shift_tab = a:shift_tab
-	if exists('b:fallback_tried') && b:fallback_tried
+	if a:fallback_tried
 		let fallback_action = ""
 	else
 		let fallback_action = "\<C-r>=VimCompletesMe#check_completion()\<CR>"
+		let b:tab_complete_pos = pos
 	endif
 
   if !empty(&omnifunc) && match(substr, omni_pattern) != -1
     " Check position so that we can fallback if at the same pos.
     if get(b:, 'tab_complete_pos', []) == pos && b:completion_tried
       echo "Falling back to keyword"
-			let b:fallback_tried = 1
       let exp = "\<C-x>" . dirs[!dir]
     else
       echo "Looking for members..."
@@ -60,7 +60,6 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
   " If we already tried special completion, fallback to keyword completion
   if exists('b:completion_tried') && b:completion_tried
     let b:completion_tried = 0
-		let b:fallback_tried = 1
     return "\<C-e>" . dirs[!dir]
   endif
 
@@ -79,10 +78,9 @@ function! VimCompletesMe#vim_completes_me(shift_tab)
 endfunction
 
 function! VimCompletesMe#check_completion()
-	if !pumvisible()
-		let b:fallback_tried = 1
-		let exp = VimCompletesMe#vim_completes_me(b:shift_tab)
-		let b:fallback_tried = 0
+	if !pumvisible() && b:tab_complete_pos == getpos('.')
+		let exp = VimCompletesMe#vim_completes_me(b:shift_tab, 1)
 		return exp
 	endif
+	return ""
 endfunction
